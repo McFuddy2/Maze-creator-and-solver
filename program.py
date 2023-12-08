@@ -28,9 +28,6 @@ class Window:
         line.draw(self.canvas, fill_color)
 
 
-
-
-
 class Point:
     def __init__(self, x, y):
         self.x = x
@@ -77,6 +74,22 @@ class Cell:
             self._win.draw_line(self.bw, "black")
 
 
+
+    def draw_move(self, to_cell, undo=False):
+        line = "gray"
+        if undo == True:
+            line = "red"
+
+        mid_x = (self._x1 + self._x2) /2
+        mid_y = (self._y1 + self._y2) /2
+        from_point = Point(mid_x, mid_y)
+        mid_x2 = (to_cell._x1 + to_cell._x2) /2
+        mid_y2 = (to_cell._y1 + to_cell._y2) /2
+        to_point = Point(mid_x2, mid_y2)
+        path = Line(from_point, to_point)
+        self._win.draw_line(path, "black")
+
+
 win = Window(800,600)
 
 
@@ -110,7 +123,7 @@ cell3.draw()
 
 
 
-
+cell1.draw_move(cell3)
 
 
 
