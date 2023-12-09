@@ -66,9 +66,9 @@ class Cell:
         
         x1, y1, x2, y2 = self._x1, self._x2, self._y1, self._y2
         if self.left_wall is True:
-            self._win.draw_line(self.lw, "red")
+            self._win.draw_line(self.lw, "black")
         if self.right_wall is True:       
-            self._win.draw_line(self.rw, "red")
+            self._win.draw_line(self.rw, "black")
         if self.top_wall is True:
             self._win.draw_line(self.tw, "black")
         if self.bottom_wall is True:
@@ -77,7 +77,7 @@ class Cell:
 
 
     def draw_move(self, to_cell, undo=False):
-        line = "gray"
+        line = "green"
         if undo == True:
             line = "red"
 
@@ -102,8 +102,8 @@ class Maze:
         cell_size_y,
         win=None
     ):
-        self.x1, = x1,
-        self.y1, = y1,
+        self._x1, = x1,
+        self._y1, = y1,
         self.num_rows, = num_rows,
         self.num_cols, = num_cols,
         self.cell_size_x, = cell_size_x,
@@ -117,24 +117,24 @@ class Maze:
         for i in range(self.num_cols):
             col = []
             for j in range(self.num_rows):
-                cell_x1 = self._x1 + i * self._cell_size_x
-                cell_y1 = self._y1 + j * self._cell_size_y
-                cell_x2 = cell._x1 + self._cell_size_x
-                cell_y2 = cell._y1 + self._cell_size_y
+                cell_x1 = self._x1 + i * self.cell_size_x
+                cell_y1 = self._y1 + j * self.cell_size_y
+                cell_x2 = cell_x1 + self.cell_size_x
+                cell_y2 = cell_y1 + self.cell_size_y
 
                 cell = Cell(cell_x1, cell_y1, cell_x2, cell_y2, self.win)
                 col.append(cell)
 
-                self._draw_cell(cell, i, j)
+                self._draw_cell(i, j)
             self._cells.append(col)
 
 
 
     def _draw_cell(self, i, j):
-        cell_x1 = self._x1 + i * self._cell_size_x
-        cell_y1 = self._y1 + j * self._cell_size_y
-        cell_x2 = self._x1 + (i + 1) * self._cell_size_x
-        cell_y2 = self._y1 + (j + 1) * self._cell_size_y
+        cell_x1 = self._x1 + i * self.cell_size_x
+        cell_y1 = self._y1 + j * self.cell_size_y
+        cell_x2 = self._x1 + (i + 1) * self.cell_size_x
+        cell_y2 = self._y1 + (j + 1) * self.cell_size_y
 
         cell = Cell(cell_x1, cell_y1, cell_x2, cell_y2, self.win)
         cell.draw()
@@ -149,53 +149,8 @@ class Maze:
 
 
 
-
-
-
 win = Window(800,600)
-
-
-
-
-
-
-
-
-point1 = Point(1, 50)
-point2 = Point(74, 7)
-point3 = Point(1, 1)
-point4 = Point(1, 100)
-point5 = Point(74, 100)
-line1 = Line(point1, point2)
-line2 = Line(point3, point4)
-line3 = Line(point1, point5)
-
-cell1 = Cell(50, 50, 100, 100, win)
-cell1.draw()
-
-
-cell2 = Cell(150, 150, 200, 200, win)
-cell2.right_wall = False
-cell2.top_wall = False
-cell2.draw()
-
-
-cell3 = Cell(400, 600, 1, 500, win)
-cell3.draw()
-
-
-
-cell1.draw_move(cell3)
-
-
-
-
-
-win.draw_line(line1, "black")
-win.draw_line(line2, "red")
-win.draw_line(line3, "black")
-
-
+first_maze = Maze(10,10,11,15,50,50,win)
 
 
 win.wait_for_close()
