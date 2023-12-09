@@ -1,4 +1,5 @@
 from tkinter import Tk, BOTH, Canvas
+import time
 
 class Window:
     def __init__(self, width, height):
@@ -46,7 +47,7 @@ class Line:
         canvas.pack()
 
 class Cell:
-    def __init__(self, win, x1, y1, x2, y2):
+    def __init__(self, x1, y1, x2, y2, win=None):
         self.left_wall = True
         self.right_wall = True
         self.top_wall = True
@@ -90,6 +91,67 @@ class Cell:
         self._win.draw_line(path, "black")
 
 
+
+class Maze:
+    def __init__(self,
+        x1,
+        y1,
+        num_rows,
+        num_cols,
+        cell_size_x,
+        cell_size_y,
+        win=None
+    ):
+        self.x1, = x1,
+        self.y1, = y1,
+        self.num_rows, = num_rows,
+        self.num_cols, = num_cols,
+        self.cell_size_x, = cell_size_x,
+        self.cell_size_y, = cell_size_y,
+        self.win, = win,
+        self._cells = []
+        self._create_cells()
+
+
+    def _create_cells(self):
+        for i in range(self.num_cols):
+            col = []
+            for j in range(self.num_rows):
+                cell_x1 = self._x1 + i * self._cell_size_x
+                cell_y1 = self._y1 + j * self._cell_size_y
+                cell_x2 = cell._x1 + self._cell_size_x
+                cell_y2 = cell._y1 + self._cell_size_y
+
+                cell = Cell(cell_x1, cell_y1, cell_x2, cell_y2, self.win)
+                col.append(cell)
+
+                self._draw_cell(cell, i, j)
+            self._cells.append(col)
+
+
+
+    def _draw_cell(self, i, j):
+        cell_x1 = self._x1 + i * self._cell_size_x
+        cell_y1 = self._y1 + j * self._cell_size_y
+        cell_x2 = self._x1 + (i + 1) * self._cell_size_x
+        cell_y2 = self._y1 + (j + 1) * self._cell_size_y
+
+        cell = Cell(cell_x1, cell_y1, cell_x2, cell_y2, self.win)
+        cell.draw()
+        self._animate()
+
+    def _animate(self):
+        self.win.redraw()
+        time.sleep(0.05)
+
+
+
+
+
+
+
+
+
 win = Window(800,600)
 
 
@@ -108,17 +170,17 @@ line1 = Line(point1, point2)
 line2 = Line(point3, point4)
 line3 = Line(point1, point5)
 
-cell1 = Cell(win, 50, 50, 100, 100)
+cell1 = Cell(50, 50, 100, 100, win)
 cell1.draw()
 
 
-cell2 = Cell(win, 150, 150, 200, 200)
+cell2 = Cell(150, 150, 200, 200, win)
 cell2.right_wall = False
 cell2.top_wall = False
 cell2.draw()
 
 
-cell3 = Cell(win, 400, 600, 1, 500)
+cell3 = Cell(400, 600, 1, 500, win)
 cell3.draw()
 
 
