@@ -1,5 +1,7 @@
 from tkinter import Tk, BOTH, Canvas
 import time
+import random
+
 
 class Window:
     def __init__(self, width, height):
@@ -62,6 +64,8 @@ class Cell:
         self._y1 = y1
         self._y2 = y2
         self._win = win
+        self.visited = False
+
 
     def draw(self):
         
@@ -71,17 +75,17 @@ class Cell:
         else:
             self._win.draw_line(self.lw, "white")
         if self.right_wall is True:       
-            self._win.draw_line(self.rw, "green")
+            self._win.draw_line(self.rw, "black")
         else:
-            self._win.draw_line(self.rw, "blue")
+            self._win.draw_line(self.rw, "white")
         if self.top_wall is True:
-            self._win.draw_line(self.tw, "pink")
+            self._win.draw_line(self.tw, "black")
         else:
-            self._win.draw_line(self.tw, "purple")
+            self._win.draw_line(self.tw, "white")
         if self.bottom_wall is True:
-            self._win.draw_line(self.bw, "orange")
+            self._win.draw_line(self.bw, "black")
         else:
-            self._win.draw_line(self.bw, "yellow")
+            self._win.draw_line(self.bw, "white")
 
 
 
@@ -109,7 +113,8 @@ class Maze:
         num_cols,
         cell_size_x,
         cell_size_y,
-        win=None
+        win=None,
+        seed=None
     ):
         self._x1, = x1,
         self._y1, = y1,
@@ -119,17 +124,20 @@ class Maze:
         self.cell_size_y, = cell_size_y,
         self.win, = win,
         self._cells = []
-        self._create_cells()
-        print(f"top wall before break {self._cells[0][0].top_wall}")
-        self._break_entrance_and_exit()
-        print(f"top wall after break {self._cells[0][0].top_wall}")
 
+        if seed is not None:
+            random.seed(seed)
+
+        self._create_cells()
+        self._break_entrance_and_exit()
+        self._break_walls_r()
+        
     def _break_entrance_and_exit(self):
         self._cells[0][0].top_wall = False
         self._cells[self.num_cols - 1][self.num_rows - 1].bottom_wall = False
 
-        self._draw_cell(0,0)
-        self._draw_cell(self.num_cols - 1, self.num_rows - 1)
+        self._draw_cell(self._cells[0][0])
+        self._draw_cell(self._cells[self.num_cols - 1][self.num_rows - 1])
         self._animate()
        
 
@@ -146,18 +154,12 @@ class Maze:
                 cell = Cell(cell_x1, cell_y1, cell_x2, cell_y2, self.win)
                 col.append(cell)
 
-                self._draw_cell(i, j)
+                self._draw_cell(cell)
             self._cells.append(col)
 
 
 
-    def _draw_cell(self, i, j):
-        cell_x1 = self._x1 + i * self.cell_size_x
-        cell_y1 = self._y1 + j * self.cell_size_y
-        cell_x2 = self._x1 + (i + 1) * self.cell_size_x
-        cell_y2 = self._y1 + (j + 1) * self.cell_size_y
-
-        cell = Cell(cell_x1, cell_y1, cell_x2, cell_y2, self.win)
+    def _draw_cell(self, cell):
         cell.draw()
         self._animate()
 
@@ -166,7 +168,54 @@ class Maze:
         time.sleep(0.05)
 
 
+    def _break_walls_r(self):
+        print("wall breaker")
+        loop = False
+        a=0
+        b=0
 
+        while loop is False:
+            self._cells[a][b].visited = True
+            visit_options = []
+            print("in loop")
+            #left
+            if a-1 >= 0 and self._cells[a-1][b].visited == False:
+                visit_options.append((a-1,b, "left"))
+            #right
+            if a+1 <= self.num_cols-1 and self._cells[a+1][b].visited == False:
+                visit_options.append((a+1,b, "right"))
+            #up
+            if b-1 >= 0 and self._cells[a][b-1].visited == False:
+                visit_options.append((a,b-1, "up"))
+            #down
+            if b+1 <= self.num_rows-1 and self._cells[a][b+1].visited == False:
+                visit_options.append((a,b+1, "down"))
+            
+            
+            if visit_options:
+                new_a, new_b, direction = random.choice(visit_options)
+                print(new_a, new_b, direction)
+                if direction == "left":
+                    self._cells[a][b].left_wall = False
+                    self._cells[new_a][new_b].right_wall = False
+                elif direction == "right":
+                    self._cells[a][b].right_wall = False
+                    self._cells[new_a][new_b].left_wall = False
+                elif direction == "up":
+                    self._cells[a][b].top_wall = False
+                    self._cells[new_a][new_b].bottom_wall = False
+                elif direction == "down":
+                    self._cells[a][b].bottom_wall = False
+                    self._cells[new_a][new_b].top_wall = False
+                self._draw_cell(self._cells[a][b])
+                self._draw_cell(self._cells[new_a][new_b])
+                a = new_a
+                b = new_b
+            else:
+                loop = True
+            
+        
+       
 
 
 
