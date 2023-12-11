@@ -90,9 +90,10 @@ class Cell:
 
 
     def draw_move(self, to_cell, undo=False):
-        line = "green"
         if undo == True:
             line = "red"
+        else:
+            line = "green"
 
         mid_x = (self._x1 + self._x2) /2
         mid_y = (self._y1 + self._y2) /2
@@ -101,7 +102,7 @@ class Cell:
         mid_y2 = (to_cell._y1 + to_cell._y2) /2
         to_point = Point(mid_x2, mid_y2)
         path = Line(from_point, to_point)
-        self._win.draw_line(path, "black")
+        self._win.draw_line(path, line)
 
 
 
@@ -114,7 +115,7 @@ class Maze:
         cell_size_x,
         cell_size_y,
         win=None,
-        seed=None
+        solvable=False
     ):
         self._x1, = x1,
         self._y1, = y1,
@@ -124,13 +125,16 @@ class Maze:
         self.cell_size_y, = cell_size_y,
         self.win, = win,
         self._cells = []
+        self.solved = None
 
-        if seed is not None:
-            random.seed(seed)
 
         self._create_cells()
         self._break_entrance_and_exit()
         self._break_walls_r()
+        self._reset_cells_visited()
+        self.solve()
+        if solvable == True and self.solved == False:
+            self.make_it_solveable()
         
     def _break_entrance_and_exit(self):
         self._cells[0][0].top_wall = False
@@ -169,7 +173,6 @@ class Maze:
 
 
     def _break_walls_r(self):
-        print("wall breaker")
         loop = False
         a=0
         b=0
@@ -177,7 +180,6 @@ class Maze:
         while loop is False:
             self._cells[a][b].visited = True
             visit_options = []
-            print("in loop")
             #left
             if a-1 >= 0 and self._cells[a-1][b].visited == False:
                 visit_options.append((a-1,b, "left"))
@@ -194,7 +196,6 @@ class Maze:
             
             if visit_options:
                 new_a, new_b, direction = random.choice(visit_options)
-                print(new_a, new_b, direction)
                 if direction == "left":
                     self._cells[a][b].left_wall = False
                     self._cells[new_a][new_b].right_wall = False
@@ -215,7 +216,55 @@ class Maze:
                 loop = True
             
         
-       
+    def _reset_cells_visited(self):
+        for i in range(len(self._cells)):
+            for j in range(len(self._cells[i])):  
+                self._cells[i][j].visited = False
+
+
+    def solve(self):
+        solved = False
+        a=0
+        b=0
+
+        while solved is False:
+            self._cells[a][b].visited = True
+            visit_options = []
+            #left
+            if a-1 >= 0 and self._cells[a-1][b].visited == False and self._cells[a][b].left_wall == False:
+                visit_options.append((a-1,b))
+            #right
+            if a+1 <= self.num_cols-1 and self._cells[a+1][b].visited == False and self._cells[a][b].right_wall == False:
+                visit_options.append((a+1,b))
+            #up
+            if b-1 >= 0 and self._cells[a][b-1].visited == False and self._cells[a][b].top_wall == False:
+                visit_options.append((a,b-1))
+            #down
+            if b+1 <= self.num_rows-1 and self._cells[a][b+1].visited == False and self._cells[a][b].bottom_wall == False:
+                visit_options.append((a,b+1))
+
+            if visit_options:
+                new_a, new_b = random.choice(visit_options)
+                self._cells[a][b].draw_move(self._cells[new_a][new_b])
+                a = new_a
+                b = new_b
+                if self._cells[a][b] == self._cells[self.num_cols - 1][self.num_rows - 1]:
+                    solved = True
+            else:
+                break
+
+        self.solved = solved
+
+
+    def make_it_solveable(self):
+        if self.solved == False:
+            self._create_cells()
+            self._break_entrance_and_exit()
+            self._break_walls_r()
+            self._reset_cells_visited()
+            self.solve()
+
+    
 
 
 
