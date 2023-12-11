@@ -9,6 +9,8 @@ class Window:
         self.canvas.pack()
         self.running = True
         self.root.protocol("WM_DELETE_WINDOW", self.close)
+        self.width = width
+        self.height = height
 
 
     def redraw(self):
@@ -33,7 +35,6 @@ class Point:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-
 
 class Line:
     def __init__(self, point1, point2):
@@ -67,12 +68,20 @@ class Cell:
         x1, y1, x2, y2 = self._x1, self._x2, self._y1, self._y2
         if self.left_wall is True:
             self._win.draw_line(self.lw, "black")
+        else:
+            self._win.draw_line(self.lw, "white")
         if self.right_wall is True:       
-            self._win.draw_line(self.rw, "black")
+            self._win.draw_line(self.rw, "green")
+        else:
+            self._win.draw_line(self.rw, "blue")
         if self.top_wall is True:
-            self._win.draw_line(self.tw, "black")
+            self._win.draw_line(self.tw, "pink")
+        else:
+            self._win.draw_line(self.tw, "purple")
         if self.bottom_wall is True:
-            self._win.draw_line(self.bw, "black")
+            self._win.draw_line(self.bw, "orange")
+        else:
+            self._win.draw_line(self.bw, "yellow")
 
 
 
@@ -111,6 +120,18 @@ class Maze:
         self.win, = win,
         self._cells = []
         self._create_cells()
+        print(f"top wall before break {self._cells[0][0].top_wall}")
+        self._break_entrance_and_exit()
+        print(f"top wall after break {self._cells[0][0].top_wall}")
+
+    def _break_entrance_and_exit(self):
+        self._cells[0][0].top_wall = False
+        self._cells[self.num_cols - 1][self.num_rows - 1].bottom_wall = False
+
+        self._draw_cell(0,0)
+        self._draw_cell(self.num_cols - 1, self.num_rows - 1)
+        self._animate()
+       
 
 
     def _create_cells(self):
@@ -149,9 +170,22 @@ class Maze:
 
 
 
+
+
+
+
+
+# width, height
 win = Window(800,600)
+
+#10,10,row,col,size, size, window)
+# row 600 - 10 // 50 = 11
+# col 800 - 10 // = 15 
+
 first_maze = Maze(10,10,11,15,50,50,win)
 
 
-win.wait_for_close()
 
+
+
+win.wait_for_close()
